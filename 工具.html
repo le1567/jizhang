@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工资计算器与记账</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+        .input-group {
+            margin: 15px 0;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+        }
+        .record-list {
+            margin-top: 20px;
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+        }
+        .record-item {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .record-item span {
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .record-item .date {
+            font-weight: bold;
+        }
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            background-color: #e53935;
+        }
+        #chart-container {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .alert {
+            color: red;
+            text-align: center;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>工资计算器与记账</h1>
+
+        <div class="alert" id="error-msg"></div>
+
+        <!-- 输入工资计算的表单 -->
+        <div class="input-group">
+            <label for="date">日期：</label>
+            <input type="date" id="date" required>
+        </div>
+
+        <div class="input-group">
+            <label for="hourly-rate">时薪（元/小时）：</label>
+            <input type="number" id="hourly-rate" placeholder="请输入时薪" required>
+        </div>
+
+        <div class="input-group">
+            <label for="shift">班次选择：</label>
+            <select id="shift" required>
+                <option value="none">请选择班次</option>
+                <option value="day">白班</option>
+                <option value="night">夜班</option>
+                <option value="early_peak">早高峰</option>
+                <option value="late_peak">晚高峰</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label for="day-shift-hours">白班时长（小时）：</label>
+            <input type="number" id="day-shift-hours" placeholder="请输入白班工作小时数">
+        </div>
+
+        <div class="input-group">
+            <label for="night-shift-hours">夜班时长（小时）：</label>
+            <input type="number" id="night-shift-hours" placeholder="请输入夜班工作小时数">
+        </div>
+
+        <div class="input-group">
+            <label for="early-peak-price">早高峰价格（元）：</label>
+            <input type="number" id="early-peak-price" placeholder="请输入早高峰价格（可选）">
+        </div>
+
+        <div class="input-group">
+            <label for="late-peak-price">晚高峰价格（元）：</label>
+            <input type="number" id="late-peak-price" placeholder="请输入晚高峰价格（可选）">
+        </div>
+
+        <div class="input-group">
+            <label for="pay-day">每月发工资日期：</label>
+            <input type="number" id="pay-day" placeholder="如28" min="1" max="31">
+        </div>
+
+        <button onclick="calculateSalary()">计算工资</button>
+
+        <div class="result" id="salary-result"></div>
+
+        <div class="record-list">
+            <h3>历史记录：</h3>
+            <div id="history"></div>
+        </div>
+
+        <div id="chart-container">
+            <h3>工资趋势图</h3>
+            <canvas id="salaryChart" width="400" height="200"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // 错误消息显示
+        function showError(message) {
+            document.getElementById('error-msg').textContent = message;
+        }
+
+        // 从本地存储加载记录
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('workHistory')) || [];
+            const historyContainer = document.getElementById('history');
+            historyContainer.innerHTML = '';
+
+            if (history.length === 0) {
+                historyContainer.innerHTML = '<p>暂无记录</p>';
+            } else {
+                history.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.classList.add('record-item');
+                    div.innerHTML = `
+                        <span class="date">${item.date}</span>
+                        <span>班次：${item.shift}</span>
+                        <span>总工资：${item.totalSalary}元</span>
+                        <button class="delete-btn" onclick="deleteRecord(${index})">删除</button>
+                    `;
+                    historyContainer.appendChild(div);
+                });
+            }
+
+            updateChart(history);
+        }
+
+        // 更新图表
+        function updateChart(history) {
+            const dates = history.map(item => item.date);
+            const salaries = history.map(item => parseFloat(item.totalSalary));
+
+            const ctx = document.getElementById('salaryChart').getContext('2d');
+            if (window.salaryChart) {
+                window.salaryChart.destroy();
+            }
+            window.salaryChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: dates,
+                    datasets: [{
+                        label: '工资趋势',
+                        data: salaries,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: '日期'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '工资 (元)'
+                            },
+                            min: 0
+                        }
+                    }
+                }
+            });
+        }
+
+        // 计算工资
+        function calculateSalary() {
+            const date = document.getElementById('date').value;
+            const hourlyRate = parseFloat(document.getElementById('hourly-rate').value);
+            const shift = document.getElementById('shift').value;
+            const earlyPeakPrice = parseFloat(document.getElementById('early-peak-price').value);
+            const latePeakPrice = parseFloat(document.getElementById('late-peak-price').value);
+            const dayShiftHours = parseFloat(document.getElementById('day-shift-hours').value);
+            const nightShiftHours = parseFloat(document.getElementById('night-shift-hours').value);
+            const payDay = parseInt(document.getElementById('pay-day').value);
+
+            if (isNaN(hourlyRate) || !date || shift === 'none') {
+                showError("请输入有效的所有字段！");
+                return;
+            }
+
+            let totalSalary = 0;
+
+            if (shift === 'day') {
+                totalSalary = hourlyRate * dayShiftHours;
+            } else if (shift === 'night') {
+                totalSalary = hourlyRate * nightShiftHours;
+            } else if (shift === 'early_peak') {
+                totalSalary = earlyPeakPrice || 0;
+            } else if (shift === 'late_peak') {
+                totalSalary = latePeakPrice || 0;
+            }
+
+            const currentDate = new Date(date);
+            const currentMonth = currentDate.getMonth() + 1;
+            const currentYear = currentDate.getFullYear();
+
+            const salaryData = {
+                date,
+                shift,
+                totalSalary: totalSalary.toFixed(2),
+                currentMonth,
+                currentYear
+            };
+
+            const history = JSON.parse(localStorage.getItem('workHistory')) || [];
+            history.push(salaryData);
+            localStorage.setItem('workHistory', JSON.stringify(history));
+
+            loadHistory();
+
+            const monthlySalary = calculateMonthlySalary(currentYear, currentMonth, payDay);
+            document.getElementById('salary-result').textContent = `该月总工资：${monthlySalary.toFixed(2)}元`;
+        }
+
+        // 计算某个月的总工资
+        function calculateMonthlySalary(year, month, payDay) {
+            const history = JSON.parse(localStorage.getItem('workHistory')) || [];
+            const monthRecords = history.filter(item => item.currentYear === year && item.currentMonth === month);
+
+            return monthRecords.reduce((sum, record) => sum + parseFloat(record.totalSalary), 0);
+        }
+
+        // 删除记录
+        function deleteRecord(index) {
+            const history = JSON.parse(localStorage.getItem('workHistory')) || [];
+            history.splice(index, 1);
+            localStorage.setItem('workHistory', JSON.stringify(history));
+            loadHistory();
+        }
+
+        // 初始化加载历史记录
+        loadHistory();
+    </script>
+
+</body>
+</html>
