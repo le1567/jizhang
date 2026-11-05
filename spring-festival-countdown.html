@@ -1120,10 +1120,9 @@ sfxBtn.addEventListener('click', () => {
 
 /* ================= 背景音乐：进入页面即起，首次手势兜底 ================= */
 const bgm = $('bgm'), musicBtn = $('music');
-const MUSIC_VOL = .3, MUSIC_DUCK = .07;
+const MUSIC_VOL = .6, MUSIC_DUCK = .12;
 let musicOn = true, bgmStarted = false, bgmDucked = false;
 let bgmDuckTimer = 0, bgmFadeRaf = 0;
-try{ musicOn = localStorage.getItem('ny_music') !== 'off'; }catch(_){}
 
 function bgmVolSet(v){
   if(!bgm) return;
@@ -1155,7 +1154,7 @@ function bgmPlay(){
   if(p && p.then) p.then(() => {
     bgmStarted = true;
     musicMark(true);
-    bgmFadeTo(bgmDucked ? MUSIC_DUCK : MUSIC_VOL, 1600);
+    bgmFadeTo(bgmDucked ? MUSIC_DUCK : MUSIC_VOL, 1100);
   }).catch(() => {});
 }
 function bgmDuck(ms){
@@ -1168,7 +1167,7 @@ function bgmDuck(ms){
   }, ms);
 }
 if(bgm){
-  musicMark(false);
+  musicMark(musicOn);
   if(musicOn){
     musicBtn.classList.add('arm');
     bgmPlay();
@@ -1179,7 +1178,6 @@ if(bgm){
   musicBtn.addEventListener('click', e => {
     e.stopPropagation();
     musicOn = !musicOn;
-    try{ localStorage.setItem('ny_music', musicOn ? 'on' : 'off'); }catch(_){}
     if(musicOn){ bgmPlay(); }
     else {
       bgmFadeTo(0, 480);
