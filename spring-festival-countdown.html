@@ -76,7 +76,7 @@ body{
 .act1{min-height:100svh;display:flex;flex-direction:column;padding:0 clamp(20px,4.5vw,64px);position:relative}
 
 .topbar{display:flex;align-items:center;justify-content:space-between;
-  height:clamp(62px,9vh,84px);border-bottom:1px solid rgba(185,154,98,.14);flex:0 0 auto;position:relative}
+  height:clamp(62px,9vh,84px);border-bottom:1px solid rgba(185,154,98,.14);flex:0 0 auto;position:relative;z-index:3}
 .topbar::before{content:"";position:absolute;left:0;bottom:-1px;height:1px;width:100%;
   background:linear-gradient(90deg,var(--gold),rgba(185,154,98,.05));transform:scaleX(0);transform-origin:50%}
 .topbar.in::before{transform:scaleX(1);transition:transform .9s var(--e-scene)}
@@ -122,8 +122,8 @@ body{
   box-shadow:0 0 8px rgba(224,71,58,.6)}
 .l1{left:8%;--cord:62px;--w:60px;--t:6.2s}
 .l2{left:19%;--cord:20px;--w:40px;--t:5.4s;--dl:-2.2s}
-.l3{right:14%;--cord:44px;--w:58px;--t:7s;--dl:-3.4s}
-.l4{right:20%;--cord:14px;--w:36px;--t:5.8s;--dl:-1.2s}
+.l3{right:17%;--cord:44px;--w:58px;--t:7s;--dl:-3.4s}
+.l4{right:26%;--cord:14px;--w:36px;--t:5.8s;--dl:-1.2s}
 @keyframes sway{from{transform:rotate(-2.4deg)}to{transform:rotate(2.6deg)}}
 @keyframes lglow{from{box-shadow:0 0 26px rgba(240,96,60,.34), inset 0 -10px 20px rgba(88,8,4,.6)}
   to{box-shadow:0 0 46px rgba(240,110,64,.55), inset 0 -10px 20px rgba(88,8,4,.6)}}
@@ -329,6 +329,12 @@ footer.act1-foot{flex:0 0 auto;padding-bottom:clamp(16px,3vh,30px)}
   color:rgba(224,179,106,.6);background:rgba(46,8,5,.3);border:1px solid rgba(224,179,106,.28);
   cursor:pointer;transition:color .3s,border-color .3s,box-shadow .3s,opacity .3s;opacity:.55}
 .sfx.on{opacity:1;color:#FFD98A;border-color:rgba(255,217,138,.55);box-shadow:0 0 12px rgba(224,179,106,.35)}
+.sfx.music{font-size:11px}
+.sfx.arm{animation:armpulse 2.4s ease-in-out infinite}
+@keyframes armpulse{
+  0%,100%{opacity:.55;box-shadow:0 0 0 rgba(224,179,106,0)}
+  50%{opacity:1;box-shadow:0 0 12px rgba(224,179,106,.4);border-color:rgba(255,217,138,.5)}
+}
 @media (pointer:coarse){.sfx{width:24px;height:24px}}
 
 /* ---------- 数字脉冲 ---------- */
@@ -439,6 +445,7 @@ footer.act1-foot{flex:0 0 auto;padding-bottom:clamp(16px,3vh,30px)}
     <header class="topbar pre" id="topbar">
       <div class="brand" id="brand"><span class="mark"></span>春节倒计时</div>
       <div class="clock" id="clockWrap">
+        <button class="sfx music arm" id="music" type="button" aria-label="开启背景音乐" aria-pressed="false" title="背景音乐">♫</button>
         <button class="sfx" id="sfx" type="button" aria-label="开启音效" title="音效开关">♪</button>
         <span>北京时间</span><b id="clock">--:--:--</b>
       </div>
@@ -528,6 +535,7 @@ footer.act1-foot{flex:0 0 auto;padding-bottom:clamp(16px,3vh,30px)}
   <div class="ny-sub" id="nySub"></div>
 </div>
 
+<audio id="bgm" src="bgm.mp3" loop preload="metadata" aria-hidden="true"></audio>
 <script>
 'use strict';
 /* ---------------- 数据 ---------------- */
@@ -1009,7 +1017,7 @@ function launchFireworks(opt = {}){
   const pal = opt.pal || PAL.gold;
   const count = opt.count || 5;
   const gap = opt.gap || 270;
-  const forms = ['peony','ring','willow','double'];
+  const forms = ['peony','peony','willow','double','ring'];
   for(let i=0;i<count;i++) setTimeout(() => {
     if(document.hidden) return;
     rockets.push({
@@ -1029,7 +1037,11 @@ function explode(x, y, opt = {}){
   if(sparks.length > 2400) sparks.splice(0, sparks.length - 2400);
   for(let i=0;i<n;i++){
     let a = Math.random()*Math.PI*2, sp;
-    if(form === 'ring'){ a = (i/n)*Math.PI*2; sp = (dim ? 1.7 : (big ? 4.3 : 3.8)) + Math.random()*.35; }
+    if(form === 'ring'){
+      a = (i/n)*Math.PI*2 + (Math.random()-.5)*.14;
+      sp = (dim ? 1.7 : (big ? 4.3 : 3.8)) * (1 + (Math.random()-.5)*.18);
+      if(i % 5 === 0) sp *= .46;
+    }
     else if(form === 'willow'){ a = (i/n)*Math.PI*2 + .2; sp = (dim ? 1.2 : (big ? 3.6 : 2.9)) + Math.random()*1.5; }
     else if(form === 'double' && i % 2){ a = (i/n)*Math.PI*2; sp = (dim ? .7 : 1.8) + Math.random()*.5; }
     else sp = dim ? (.9 + Math.random()*vmax) : (1.6 + Math.random()*vmax);
@@ -1083,6 +1095,7 @@ let fwTimer = 0;
 function fireworks(auto){
   if(!RM){
     launchFireworks({ count: 12, big: auto, gap: auto ? 165 : 185 });
+    bgmDuck(auto ? 9500 : 4800);
     firecrackers(auto ? 12 : 10);
     setTimeout(() => boomSound(0, auto ? 1 : .9), 240);
     if(auto) setTimeout(() => launchFireworks({ count: 6, big: true, gap: 230 }), 2100);
@@ -1104,6 +1117,84 @@ sfxBtn.addEventListener('click', () => {
   sfxBtn.setAttribute('aria-pressed', sfxOn);
   if(sfxOn){ audioCtx(); popSound(0, .18); }
 });
+
+/* ================= 背景音乐：进入页面即起，首次手势兜底 ================= */
+const bgm = $('bgm'), musicBtn = $('music');
+const MUSIC_VOL = .3, MUSIC_DUCK = .07;
+let musicOn = true, bgmStarted = false, bgmDucked = false;
+let bgmDuckTimer = 0, bgmFadeRaf = 0;
+try{ musicOn = localStorage.getItem('ny_music') !== 'off'; }catch(_){}
+
+function bgmVolSet(v){
+  if(!bgm) return;
+  try{ bgm.volume = Math.max(0, Math.min(1, v)); }catch(_){}
+}
+function bgmFadeTo(to, ms){
+  if(!bgm) return;
+  cancelAnimationFrame(bgmFadeRaf);
+  let from = MUSIC_VOL;
+  try{ from = bgm.volume; }catch(_){}
+  const t0 = performance.now();
+  const step = now => {
+    const k = Math.min(1, (now - t0) / ms);
+    bgmVolSet(from + (to - from) * (1 - Math.pow(1 - k, 3)));
+    if(k < 1) bgmFadeRaf = requestAnimationFrame(step);
+  };
+  bgmFadeRaf = requestAnimationFrame(step);
+}
+function musicMark(on){
+  musicBtn.classList.remove('arm');
+  musicBtn.classList.toggle('on', on);
+  musicBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  musicBtn.setAttribute('aria-label', on ? '关闭背景音乐' : '开启背景音乐');
+}
+function bgmPlay(){
+  if(!bgm || !musicOn || bgmStarted) return;
+  bgmVolSet(0);
+  const p = bgm.play();
+  if(p && p.then) p.then(() => {
+    bgmStarted = true;
+    musicMark(true);
+    bgmFadeTo(bgmDucked ? MUSIC_DUCK : MUSIC_VOL, 1600);
+  }).catch(() => {});
+}
+function bgmDuck(ms){
+  bgmDucked = true;
+  if(bgmStarted) bgmFadeTo(MUSIC_DUCK, 340);
+  clearTimeout(bgmDuckTimer);
+  bgmDuckTimer = setTimeout(() => {
+    bgmDucked = false;
+    if(bgmStarted && musicOn) bgmFadeTo(MUSIC_VOL, 1200);
+  }, ms);
+}
+if(bgm){
+  musicMark(false);
+  if(musicOn){
+    musicBtn.classList.add('arm');
+    bgmPlay();
+    const arm = () => { if(!bgmStarted) bgmPlay(); };
+    ['pointerdown','touchstart','keydown'].forEach(t => addEventListener(t, arm, {passive:true, once:true}));
+  }
+  musicBtn.addEventListener('pointerdown', e => e.stopPropagation());
+  musicBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    musicOn = !musicOn;
+    try{ localStorage.setItem('ny_music', musicOn ? 'on' : 'off'); }catch(_){}
+    if(musicOn){ bgmPlay(); }
+    else {
+      bgmFadeTo(0, 480);
+      setTimeout(() => { if(!musicOn && bgm) bgm.pause(); }, 520);
+      bgmStarted = false;
+      musicMark(false);
+      musicBtn.classList.add('arm');
+    }
+  });
+  document.addEventListener('visibilitychange', () => {
+    if(!bgmStarted) return;
+    if(document.hidden) bgm.pause();
+    else if(musicOn){ const p = bgm.play(); if(p && p.catch) p.catch(()=>{}); }
+  });
+}
 
 /* ================= 节日彩蛋 ================= */
 const FEST = {
