@@ -171,7 +171,7 @@ body{
 .bignum.is-sweep .days{filter:brightness(1.06)}
 .days{position:relative;z-index:1;display:flex;align-items:flex-end;font-family:var(--num);
   --lh:1.28;
-  font-size:clamp(104px,20vw,320px);line-height:.84;letter-spacing:-.03em;
+  font-size:calc(clamp(104px,20vw,320px) * var(--k,1));line-height:.84;letter-spacing:-.03em;
   color:#F4EBDA;font-variant-numeric:lining-nums tabular-nums;text-shadow:0 0 110px rgba(214,164,94,.18)}
 .odo{display:inline-flex;height:calc(1em * var(--lh,1));line-height:1;overflow:hidden;font-variant-numeric:lining-nums tabular-nums}
 .odo-col{display:block;height:calc(1em * var(--lh,1));overflow:hidden;width:.58em}
@@ -179,7 +179,7 @@ body{
 .odo-track span{height:calc(1em * var(--lh,1));line-height:var(--lh,1);display:block;text-align:center}
 .days .odo-track{transition-duration:.8s}
 .days-unit{position:absolute;right:calc(-1*clamp(26px,3vw,42px));
-  bottom:calc(clamp(86px,20vw,320px) * .2);
+  bottom:calc(clamp(86px,20vw,320px) * .2 * var(--k,1));
   display:grid;place-items:center;width:clamp(28px,2.5vw,36px);aspect-ratio:1;
   font-size:clamp(12px,1.02vw,15px);color:rgba(243,217,164,.92);
   border:1px solid rgba(224,179,106,.42);background:rgba(46,8,5,.38);
@@ -209,7 +209,7 @@ body{
 .seal:focus-visible{outline:1px solid rgba(255,217,138,.8);outline-offset:4px}
 .seal::after{content:"";position:absolute;inset:4px;border:1px solid rgba(244,232,211,.48);border-radius:1px}
 
-.hint-drag{position:absolute;bottom:clamp(10px,2.4vh,26px);left:50%;transform:translateX(-50%);
+.hint-drag{position:absolute;bottom:clamp(-34px,-2.6vh,-18px);left:50%;transform:translateX(-50%);
   font-size:10px;letter-spacing:.3em;text-indent:.3em;color:rgba(185,154,98,.5);
   white-space:nowrap;transition:opacity .8s;z-index:2}
 
@@ -367,9 +367,9 @@ footer.act1-foot{flex:0 0 auto;padding-bottom:clamp(16px,3vh,30px)}
   .l1{left:2.5%;--cord:88px;--w:42px}
   .l3{right:2.5%;--cord:66px;--w:40px}
   .orbit{width:min(44vh,88vw,380px)}
-  .days{font-size:clamp(86px,23.5vw,150px)}
+  .days{font-size:calc(clamp(86px,23.5vw,150px) * var(--k,1))}
   .days-unit{right:calc(-1*clamp(28px,8vw,40px));width:28px;font-size:12px;
-    bottom:calc(clamp(86px,23.5vw,150px) * .2)}
+    bottom:calc(clamp(86px,23.5vw,150px) * .2 * var(--k,1))}
   .hms{gap:clamp(9px,5.6vw,20px);margin-top:clamp(14px,2.4vh,26px)}
   .u .num{font-size:clamp(24px,7.2vw,38px)}
   .u .lab{font-size:8px;letter-spacing:.32em}
@@ -411,9 +411,62 @@ footer.act1-foot{flex:0 0 auto;padding-bottom:clamp(16px,3vh,30px)}
   .ny-sub{font-size:10px;letter-spacing:.4em}
 }
 @media (max-width:380px){
-  .days{font-size:clamp(80px,27vw,120px)}
+  .days{font-size:calc(clamp(80px,27vw,120px) * var(--k,1))}
   .panel{width:82vw}
   .seal{bottom:118px}
+}
+
+/* ================= 升级：金箔、灯笼点亮、数字光泽、贺卡 ================= */
+.foil{position:fixed;inset:0;z-index:39;pointer-events:none;opacity:.5;mix-blend-mode:soft-light;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .02' numOctaves='4' seed='9'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 .88  0 0 0 0 .68  0 0 0 0 .38  0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='420' height='420' filter='url(%23f)'/%3E%3C/svg%3E");
+  background-size:520px 520px}
+.lanterns{z-index:4}
+.lant{pointer-events:auto;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.lant .body{transition:filter .4s var(--e-out), box-shadow .4s var(--e-out)}
+.lant.lit .body{filter:brightness(1.5) saturate(1.12);
+  box-shadow:0 0 78px rgba(255,132,74,.9), 0 0 150px rgba(255,110,60,.34), inset 0 -10px 22px rgba(96,8,4,.45)}
+.lant.shake{animation:lantshake .62s var(--e-out)}
+@keyframes lantshake{
+  0%,100%{rotate:0deg}
+  22%{rotate:-2.4deg}46%{rotate:2.2deg}68%{rotate:-1.2deg}86%{rotate:.7deg}
+}
+.bignum{transform:translateX(var(--sw,0px)) perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+  transform-style:preserve-3d}
+.sheen{position:absolute;left:-8%;right:-8%;top:-10%;bottom:-10%;z-index:3;pointer-events:none;
+  background:linear-gradient(104deg,transparent 36%,rgba(255,240,205,.10) 45%,
+    rgba(255,252,240,.30) 50%,rgba(255,240,205,.10) 55%,transparent 64%);
+  transform:translateX(-130%);opacity:0;mix-blend-mode:screen}
+.sheen.go{animation:sheen 1.6s var(--e-out)}
+@keyframes sheen{
+  0%{transform:translateX(-130%);opacity:0}
+  18%{opacity:1}
+  100%{transform:translateX(130%);opacity:0}
+}
+.card-mask{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:22px;
+  background:rgba(10,3,2,.72);backdrop-filter:blur(14px) saturate(1.1);
+  -webkit-backdrop-filter:blur(14px) saturate(1.1);
+  opacity:0;visibility:hidden;transition:opacity .45s var(--e-out),visibility .45s}
+.card-mask.show{opacity:1;visibility:visible}
+.card-wrap{width:min(88vw,360px);max-height:84vh;display:flex;flex-direction:column;align-items:center;gap:14px;
+  transform:translateY(18px) scale(.96);opacity:0;transition:transform .55s var(--e-out),opacity .45s var(--e-out)}
+.card-mask.show .card-wrap{transform:none;opacity:1}
+.card-img{width:100%;height:auto;max-height:70vh;object-fit:contain;border-radius:6px;
+  box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(224,179,106,.35),0 0 60px rgba(224,179,106,.1)}
+.card-act{display:flex;gap:10px;width:100%}
+.card-act button{flex:1;padding:11px 8px;font:inherit;font-size:11px;letter-spacing:.22em;color:#F3D9A4;
+  background:rgba(60,12,8,.72);border:1px solid rgba(224,179,106,.4);border-radius:2px;cursor:pointer;
+  transition:background .3s,color .3s,border-color .3s,transform .3s}
+.card-act button:hover{background:rgba(224,179,106,.16);color:#FFE9C4;border-color:rgba(224,179,106,.7)}
+.card-act button:active{transform:scale(.97)}
+.card-act button.ghost{color:rgba(243,217,164,.7);border-color:rgba(224,179,106,.22)}
+.cardbtn{margin-right:14px}
+.app .topbar{height:calc(clamp(62px,9vh,84px) + env(safe-area-inset-top,0px));
+  padding-top:env(safe-area-inset-top,0px)}
+.app .act1{padding-bottom:env(safe-area-inset-bottom,0px)}
+.app .card-act{padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (max-width:760px){
+  .card-wrap{width:min(88vw,330px)}
+  .cardbtn{margin-right:10px}
 }
 
 /* ---------- 降低动态 ---------- */
@@ -428,6 +481,7 @@ footer.act1-foot{flex:0 0 auto;padding-bottom:clamp(16px,3vh,30px)}
 <body>
 <div class="stage-bg" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
+<div class="foil" aria-hidden="true"></div>
 <div class="bloom" id="bloom" aria-hidden="true"></div>
 <div class="year-flash" id="yearFlash" aria-hidden="true"></div>
 <canvas id="fx" aria-hidden="true"></canvas>
@@ -479,7 +533,8 @@ footer.act1-foot{flex:0 0 auto;padding-bottom:clamp(16px,3vh,30px)}
               </svg>
             </div>
             <div class="days" id="daysOdo"></div>
-            <span class="days-unit pre" id="unit">天</span>
+            <span class="days-unit pre" id="unit" title="点击数字切换单位">天</span>
+            <span class="sheen" id="sheen" aria-hidden="true"></span>
           </div>
           <div class="hms pre" id="hms">
             <div class="u"><span class="num" id="hOdo"></span><span class="lab">时</span></div>
@@ -494,7 +549,7 @@ footer.act1-foot{flex:0 0 auto;padding-bottom:clamp(16px,3vh,30px)}
           </div>
         </div>
 
-        <p class="hint-drag pre" id="hintDrag">按住轨道环 · 拖动穿越岁月</p>
+        <p class="hint-drag pre" id="hintDrag">点数字换单位 · 拖轨道环穿越岁月</p>
       </div>
     </main>
 
@@ -504,6 +559,7 @@ footer.act1-foot{flex:0 0 auto;padding-bottom:clamp(16px,3vh,30px)}
       <div class="rail-head">
         <span>岁次一览 · Years 2026–2036</span>
         <span class="r">
+          <button class="playfx cardbtn" id="cardBtn" type="button">写张贺卡</button>
           <button class="playfx" id="playFx" type="button">试放烟花</button>
           <span class="hintk">←　→　切换年份</span>
         </span>
@@ -533,6 +589,17 @@ footer.act1-foot{flex:0 0 auto;padding-bottom:clamp(16px,3vh,30px)}
 <div class="ny" id="ny" aria-hidden="true">
   <div class="ny-text"><span>新</span><span>年</span><span>快</span><span>乐</span></div>
   <div class="ny-sub" id="nySub"></div>
+</div>
+
+<div class="card-mask" id="cardMask" role="dialog" aria-modal="true" aria-label="新年贺卡" aria-hidden="true">
+  <div class="card-wrap">
+    <img class="card-img" id="cardImg" alt="新年贺卡预览">
+    <div class="card-act">
+      <button id="cardSave" type="button">保存图片</button>
+      <button id="cardShare" type="button">分享</button>
+      <button id="cardClose" type="button" class="ghost">关闭</button>
+    </div>
+  </div>
 </div>
 
 <audio id="bgm" src="bgm.mp3" loop preload="metadata" aria-hidden="true"></audio>
@@ -599,6 +666,14 @@ function breakdown(item, nowMs){
     d: Math.floor(abs/86400000), h: Math.floor(abs%86400000/3600000),
     m: Math.floor(abs%3600000/60000), s: Math.floor(abs%60000/1000) };
 }
+/* 大数字单位：天 / 周 / 月，点击数字循环 */
+const UNITS = [
+  {k:'天', v: st => st.d},
+  {k:'周', v: st => Math.floor(st.d/7)},
+  {k:'月', v: st => Math.floor(st.d/30.4375)}
+];
+let unitIdx = 0, lastDragAt = 0;
+const unitVal = st => UNITS[unitIdx].v(st);
 function setArc(p){
   const v = Math.min(1, Math.max(0, p));
   arcEl.setAttribute('stroke-dashoffset', (100 - v*100).toFixed(3));
@@ -628,19 +703,20 @@ function select(item, initial, quick){
   active = item; activeIdx = CNY.indexOf(item);
   const st = breakdown(item, Date.now());
   const isPast = st.past;
-  if(!initial && !dragging && navigator.vibrate){ try{ navigator.vibrate(8); }catch(_){} }
+  if(!initial && !dragging) vibe(8);
 
   const wk = wkFmt.format(item.time);
   $('dateText').textContent = `${item.y} 年 ${item.m} 月 ${item.d} 日 · ${wk} · ${item.gz}年 · ${item.z} · 正月初一`;
   $('eyebrowText').textContent = isPast ? `${item.y} 年春节 · 已过去` : `距离 ${item.y} 年春节`;
   $('nySub').textContent = `${item.gz}${item.z}年 · 新岁安康`;
   const unit = $('unit');
-  if(unit.textContent !== '天' || wasPast !== isPast){
-    unit.textContent = '天';
+  const wantUnit = UNITS[unitIdx].k;
+  if(unit.textContent !== wantUnit || wasPast !== isPast){
+    unit.textContent = wantUnit;
     if(!initial){ unit.classList.remove('flip'); void unit.offsetWidth; unit.classList.add('flip'); }
   }
 
-  odoDays.set(String(st.d), initial || RM);
+  setDays(unitVal(st), initial || RM);
   odoH.set(pad(st.h), initial || RM); odoM.set(pad(st.m), initial || RM); odoS.set(pad(st.s), initial || RM);
 
   [...railEl.children].forEach(chip => {
@@ -650,6 +726,7 @@ function select(item, initial, quick){
   });
 
   if(!initial){
+    hideHint();
     if(quick){ tickArc(); }
     else{
       redrawArc();
@@ -661,6 +738,7 @@ function select(item, initial, quick){
         const dn = $('daysOdo');
         dn.classList.remove('tick'); void dn.offsetWidth; dn.classList.add('tick');
         setTimeout(() => dn.classList.remove('tick'), 480);
+        sheenSweep();
         /* 换年 · 轨标处溅起一簇金屑 */
         const rr = orbitEl.getBoundingClientRect();
         const ox = rr.left + (parseFloat(dotEl.getAttribute('cx'))/100)*rr.width;
@@ -717,7 +795,7 @@ function tick(){
   $('clock').textContent = clockFmt.format(now);
   if(active){
     const st = breakdown(active, nowMs);
-    odoDays.set(String(st.d));
+    setDays(unitVal(st));
     odoH.set(pad(st.h)); odoM.set(pad(st.m)); odoS.set(pad(st.s));
     tickArc(); updateRail(nowMs); updatePanelDays(nowMs);
     if(lastTickDay !== null && lastTickDay !== st.d && !dragging) pulseDays();
@@ -786,7 +864,8 @@ function tick(){
     if(idx !== activeIdx) select(CNY[idx], false, true);
   });
   const end = () => {
-    active = false;
+    if(lock) lastDragAt = performance.now();
+    active = false; lock = false;
     zone.classList.remove('is-sweep', 'no-snap');
     zone.style.setProperty('--sw', '0px');
   };
@@ -1094,6 +1173,9 @@ function ambient(now){
 let fwTimer = 0;
 function fireworks(auto){
   if(!RM){
+    if(NATIVE && window.Native.setKeepAwake){
+      try{ window.Native.setKeepAwake(true); setTimeout(() => window.Native.setKeepAwake(false), 13000); }catch(_){}
+    }
     launchFireworks({ count: 12, big: auto, gap: auto ? 165 : 185 });
     bgmDuck(auto ? 9500 : 4800);
     firecrackers(auto ? 12 : 10);
@@ -1258,6 +1340,12 @@ function showFestival(entry, preview){
   }
   const el = $('fest');
   el.classList.remove('show'); void el.offsetWidth; el.classList.add('show');
+  document.querySelectorAll('.lant').forEach((l, i) => {
+    setTimeout(() => {
+      l.classList.add('lit');
+      setTimeout(() => l.classList.remove('lit'), 6200);
+    }, i * 170);
+  });
   if(!RM && entry.f.tier) setTimeout(() => festFire(entry.f), preview ? 480 : 2700);
 }
 function initFestival(){
@@ -1395,6 +1483,15 @@ function loop(now){
   const dt = Math.min(.05, (now - last)/1000); last = now;
   ctx.clearRect(0, 0, W, H);
 
+  /* 大数字轻微 3D 跟随 */
+  if(!RM && (tRx || tRy || cRx || cRy)){
+    cRx += (tRx - cRx) * .085; cRy += (tRy - cRy) * .085;
+    if(Math.abs(cRx) > .01 || Math.abs(cRy) > .01 || Math.abs(tRx) > .01 || Math.abs(tRy) > .01){
+      bnEl.style.setProperty('--rx', cRx.toFixed(2) + 'deg');
+      bnEl.style.setProperty('--ry', cRy.toFixed(2) + 'deg');
+    }
+  }
+
   if(!RM && !document.hidden){
     ambient(now);
     ctx.globalCompositeOperation = 'lighter';
@@ -1476,13 +1573,322 @@ function loop(now){
   requestAnimationFrame(loop);
 }
 
+/* ================= 升级模块：原生桥接 · 单位 · 灯笼 · 贺卡 ================= */
+const NATIVE = (() => { try { return !!(window.Native && window.Native.isApp && window.Native.isApp()); } catch(_) { return false; } })();
+if(NATIVE) document.documentElement.classList.add('app');
+
+function vibe(ms){
+  try{
+    if(NATIVE && window.Native.vibrate) window.Native.vibrate(ms);
+    else if(navigator.vibrate) navigator.vibrate(ms);
+  }catch(_){}
+}
+
+/* ---------- 单位循环：天 / 周 / 月 ---------- */
+const unitEl = $('unit'), daysEl = $('daysOdo'), sheenEl = $('sheen');
+function daysK(n){ return n <= 2 ? 1 : (n === 3 ? .72 : (n === 4 ? .54 : .46)); }
+function setDays(v, inst){
+  const s = String(v);
+  daysEl.style.setProperty('--k', daysK(s.length));
+  $('bignum').style.setProperty('--k', daysK(s.length));
+  odoDays.set(s, inst);
+}
+let hintGone = false;
+function hideHint(){
+  if(hintGone) return;
+  hintGone = true;
+  const h = $('hintDrag');
+  if(!h) return;
+  h.style.opacity = '0';
+  setTimeout(() => { h.style.display = 'none'; }, 820);
+}
+setTimeout(hideHint, 9000);
+function sheenSweep(){
+  if(RM || !sheenEl) return;
+  sheenEl.classList.remove('go'); void sheenEl.offsetWidth; sheenEl.classList.add('go');
+  setTimeout(() => sheenEl.classList.remove('go'), 1700);
+}
+function cycleUnit(){
+  if(!active) return;
+  unitIdx = (unitIdx + 1) % UNITS.length;
+  const st = breakdown(active, Date.now());
+  unitEl.textContent = UNITS[unitIdx].k;
+  unitEl.classList.remove('flip'); void unitEl.offsetWidth; unitEl.classList.add('flip');
+  setDays(unitVal(st));
+  hideHint();
+  const r = daysEl.getBoundingClientRect();
+  for(let i=0;i<12;i++){
+    const a = Math.random()*Math.PI*2, sp = .45 + Math.random()*1.5;
+    sparks.push({ x:r.left+r.width*(.2+Math.random()*.6), y:r.top+r.height*.74,
+      vx:Math.cos(a)*sp, vy:Math.sin(a)*sp - .2, age:0,
+      life:32+Math.random()*26, c:'255,226,160', w:1.15, g:.03, drag:.95 });
+  }
+  popSound(0, .1); vibe(6); sheenSweep();
+}
+/* 点击大数字切换单位（避开圆环命中区与拖拽） */
+$('bignum').addEventListener('click', e => {
+  if(e.target.closest('.o-hit')) return;
+  if(performance.now() - lastDragAt < 420) return;
+  cycleUnit();
+});
+addEventListener('keydown', e => {
+  if(e.key === 'u' || e.key === 'U') cycleUnit();
+});
+
+/* ---------- 灯笼：点亮 ---------- */
+document.querySelectorAll('.lant').forEach(lant => {
+  let timer = 0;
+  const light = e => {
+    if(e) e.stopPropagation();
+    const body = lant.querySelector('.body');
+    if(!body) return;
+    const r = body.getBoundingClientRect();
+    const cx = r.left + r.width/2, cy = r.top + r.height/2;
+    lant.classList.add('lit');
+    lant.classList.remove('shake'); void lant.offsetWidth; lant.classList.add('shake');
+    for(let i=0;i<16;i++){
+      const a = Math.random()*Math.PI*2, sp = .4 + Math.random()*1.7;
+      sparks.push({ x:cx, y:cy, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp,
+        age:0, life:34+Math.random()*30, c:i%3?'255,196,120':'255,240,206',
+        w:1.1, g:.028, drag:.95 });
+    }
+    crackle(cx, cy); popSound(0, .13); vibe(8);
+    clearTimeout(timer);
+    timer = setTimeout(() => lant.classList.remove('lit'), 2800);
+  };
+  lant.addEventListener('click', light);
+  lant.addEventListener('keydown', e => {
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); light(); }
+  });
+  lant.setAttribute('role', 'button');
+  lant.setAttribute('tabindex', '0');
+  lant.setAttribute('aria-label', '点亮灯笼');
+});
+
+/* ---------- 空白处点爆竹 ---------- */
+const stageEl = $('stage');
+let crackleAt = 0, downX = 0, downY = 0;
+stageEl.addEventListener('pointerdown', e => { downX = e.clientX; downY = e.clientY; }, {passive:true});
+stageEl.addEventListener('pointerup', e => {
+  if(e.target.closest('.bignum,.o-hit,button,a,.seal,.lant,.fest')) return;
+  if(Math.abs(e.clientX-downX) > 14 || Math.abs(e.clientY-downY) > 14) return;
+  if(performance.now() - lastDragAt < 240) return;
+  const t = performance.now();
+  if(t - crackleAt < 120) return;
+  crackleAt = t;
+  crackle(e.clientX, e.clientY);
+  smokes.push({ x:e.clientX, y:e.clientY, age:0, life:11, r:5, c:'255,220,160' });
+  popSound(0, .11); vibe(7);
+});
+
+/* ---------- 数字 3D 倾斜 ---------- */
+const heroEl = $('hero'), bnEl = $('bignum');
+let tRx = 0, tRy = 0, cRx = 0, cRy = 0;
+if(!RM && matchMedia('(hover:hover) and (pointer:fine)').matches){
+  heroEl.addEventListener('pointermove', e => {
+    const r = bnEl.getBoundingClientRect();
+    const nx = (e.clientX - (r.left + r.width/2)) / (r.width/2);
+    const ny = (e.clientY - (r.top + r.height/2)) / (r.height/2);
+    tRy = Math.max(-1, Math.min(1, nx)) * 3.4;
+    tRx = -Math.max(-1, Math.min(1, ny)) * 2.4;
+  });
+  heroEl.addEventListener('pointerleave', () => { tRx = 0; tRy = 0; });
+}
+
+/* ---------- 贺卡 ---------- */
+const cardMask = $('cardMask'), cardImg = $('cardImg');
+let cardUrl = '';
+const WISHES = [
+  '岁岁常欢愉，年年皆胜意',
+  '爆竹声中一岁除，春风送暖入屠苏',
+  '愿新年，胜旧年',
+  '灯火可亲，团圆可期'
+];
+function drawCard(){
+  const st = breakdown(active, Date.now());
+  const cv = document.createElement('canvas');
+  cv.width = 1080; cv.height = 1620;
+  const g = cv.getContext('2d');
+  const SERIF = '"Noto Serif SC","Source Han Serif SC","Songti SC",serif';
+
+  const rg = g.createRadialGradient(330, 240, 60, 540, 760, 1250);
+  rg.addColorStop(0, '#822016'); rg.addColorStop(.4, '#5C130D');
+  rg.addColorStop(.76, '#340906'); rg.addColorStop(1, '#180402');
+  g.fillStyle = rg; g.fillRect(0, 0, 1080, 1620);
+
+  const vg = g.createRadialGradient(540, 780, 260, 540, 800, 1080);
+  vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.58)');
+  g.fillStyle = vg; g.fillRect(0, 0, 1080, 1620);
+
+  g.strokeStyle = 'rgba(224,179,106,.5)'; g.lineWidth = 3;
+  g.strokeRect(66, 66, 948, 1488);
+  g.strokeStyle = 'rgba(224,179,106,.2)'; g.lineWidth = 1;
+  g.strokeRect(84, 84, 912, 1452);
+  g.strokeStyle = 'rgba(224,179,106,.75)'; g.lineWidth = 3;
+  [[66,66,1,1],[1014,66,-1,1],[66,1554,1,-1],[1014,1554,-1,-1]].forEach(([x,y,dx,dy]) => {
+    g.beginPath(); g.moveTo(x, y); g.lineTo(x + dx*46, y);
+    g.moveTo(x, y); g.lineTo(x, y + dy*46); g.stroke();
+  });
+
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillStyle = 'rgba(224,179,106,.7)';
+  g.font = `500 24px ${SERIF}`;
+  try{ g.letterSpacing = '7px'; }catch(_){}
+  g.fillText('CHINESE NEW YEAR COUNTDOWN', 540, 180);
+  try{ g.letterSpacing = '0px'; }catch(_){}
+
+  g.fillStyle = 'rgba(243,217,164,.9)';
+  g.font = `500 40px ${SERIF}`;
+  g.fillText(`${active.gz}年 · ${active.z}年`, 540, 262);
+
+  g.save();
+  g.shadowColor = 'rgba(255,196,120,.42)'; g.shadowBlur = 60;
+  g.fillStyle = '#F7ECD4';
+  g.font = `600 168px ${SERIF}`;
+  g.fillText(String(active.y), 540, 408);
+  g.restore();
+
+  g.strokeStyle = 'rgba(224,179,106,.4)'; g.lineWidth = 1;
+  g.beginPath(); g.moveTo(390, 512); g.lineTo(690, 512); g.stroke();
+
+  g.fillStyle = 'rgba(224,179,106,.82)';
+  g.font = `400 32px ${SERIF}`;
+  try{ g.letterSpacing = '6px'; }catch(_){}
+  g.fillText(st.past ? '春节已过去' : '距离春节还有', 540, 574);
+  try{ g.letterSpacing = '0px'; }catch(_){}
+
+  const main = UNITS[unitIdx].v(st);
+  g.save();
+  g.shadowColor = 'rgba(255,200,130,.5)'; g.shadowBlur = 54;
+  g.fillStyle = '#FBF3E4';
+  g.font = `600 ${main > 99 ? 300 : 360}px ${SERIF}`;
+  g.fillText(String(main), 500, 800);
+  g.restore();
+  g.fillStyle = 'rgba(243,217,164,.85)';
+  g.font = `400 44px ${SERIF}`;
+  g.fillText(UNITS[unitIdx].k, 736, 880);
+
+  g.fillStyle = 'rgba(243,217,164,.7)';
+  g.font = `400 30px ${SERIF}`;
+  g.fillText(`${active.y} 年 ${active.m} 月 ${active.d} 日 · ${wkFmt.format(active.time)}`, 540, 1020);
+
+  g.strokeStyle = 'rgba(224,179,106,.28)'; g.lineWidth = 1;
+  g.beginPath(); g.moveTo(300, 1104); g.lineTo(780, 1104); g.stroke();
+
+  const wish = (window.__festWish && window.__festWish()) || WISHES[active.y % WISHES.length];
+  g.fillStyle = 'rgba(247,236,212,.9)';
+  g.font = `400 42px ${SERIF}`;
+  g.fillText(wish, 540, 1186);
+
+  const seal = (x, y, size) => {
+    g.save();
+    g.translate(x, y); g.rotate(-.052);
+    g.fillStyle = '#B33A2C';
+    g.beginPath();
+    const r = 8;
+    g.moveTo(-size/2 + r, -size/2);
+    g.arcTo(size/2, -size/2, size/2, size/2, r);
+    g.arcTo(size/2, size/2, -size/2, size/2, r);
+    g.arcTo(-size/2, size/2, -size/2, -size/2, r);
+    g.arcTo(-size/2, -size/2, size/2, -size/2, r);
+    g.closePath(); g.fill();
+    g.strokeStyle = 'rgba(247,236,212,.9)'; g.lineWidth = 3;
+    g.strokeRect(-size/2 + 11, -size/2 + 11, size - 22, size - 22);
+    g.fillStyle = '#F7ECD4';
+    g.font = `600 ${Math.round(size * .62)}px ${SERIF}`;
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText('春', 0, 2);
+    g.restore();
+  };
+  seal(884, 1334, 132);
+
+  g.textAlign = 'left';
+  g.fillStyle = 'rgba(224,179,106,.5)';
+  g.font = `400 22px ${SERIF}`;
+  g.fillText('le1567.github.io/jizhang', 128, 1494);
+
+  g.textAlign = 'right';
+  g.fillStyle = 'rgba(224,179,106,.36)';
+  g.font = `400 20px ${SERIF}`;
+  g.fillText('守岁 · 到灯火最亮处', 952, 1494);
+
+  /* 细金屑 */
+  for(let i=0;i<90;i++){
+    const x = Math.random()*1080, y = Math.random()*1620;
+    const rr = Math.random()*2.2 + .5;
+    g.beginPath(); g.arc(x, y, rr, 0, 7);
+    g.fillStyle = `rgba(255,${200+Math.floor(Math.random()*40)},150,${(.05+Math.random()*.22).toFixed(3)})`;
+    g.fill();
+  }
+  return cv.toDataURL('image/png');
+}
+function openCard(){
+  if(!active) return;
+  cardUrl = drawCard();
+  cardImg.src = cardUrl;
+  cardMask.classList.add('show');
+  cardMask.setAttribute('aria-hidden', 'false');
+  sheenSweep();
+}
+function closeCard(){
+  cardMask.classList.remove('show');
+  cardMask.setAttribute('aria-hidden', 'true');
+}
+function downloadCard(){
+  const a = document.createElement('a');
+  a.href = cardUrl;
+  a.download = `春节倒计时-${active.y}.png`;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+async function shareCard(){
+  const st = breakdown(active, Date.now());
+  const txt = st.past
+    ? `${active.y} 年春节已过去 · ${active.gz}${active.z}年`
+    : `距离 ${active.y} 年春节还有 ${st.d} 天 · ${active.gz}${active.z}年`;
+  if(NATIVE && window.Native.shareImage){
+    try{ window.Native.shareImage(cardUrl.split(',')[1], txt); return; }catch(_){}
+  }
+  try{
+    const blob = await (await fetch(cardUrl)).blob();
+    const file = new File([blob], `spring-${active.y}.png`, { type:'image/png' });
+    if(navigator.canShare && navigator.canShare({ files:[file] })){
+      await navigator.share({ files:[file], text:txt });
+      return;
+    }
+  }catch(_){}
+  downloadCard();
+}
+$('cardBtn').addEventListener('click', openCard);
+$('cardClose').addEventListener('click', closeCard);
+$('cardSave').addEventListener('click', () => {
+  if(NATIVE && window.Native.saveImage){
+    try{ window.Native.saveImage(cardUrl.split(',')[1]); return; }catch(_){}
+  }
+  downloadCard();
+});
+$('cardShare').addEventListener('click', shareCard);
+cardMask.addEventListener('click', e => { if(e.target === cardMask) closeCard(); });
+addEventListener('keydown', e => {
+  if(e.key === 'Escape'){ closeCard(); }
+  if(e.key === 'c' || e.key === 'C'){ openCard(); }
+});
+window.__onBack = function(){
+  if(cardMask.classList.contains('show')){ closeCard(); return true; }
+  if(scrollY > 30){ scrollTo({ top:0, behavior:'smooth' }); return true; }
+  return false;
+};
+window.__festWish = () => {
+  const f = document.querySelector('#fest.show');
+  return f ? ($('festWish').textContent || '') : '';
+};
+
 /* ================= 初始化 ================= */
 addEventListener('resize', () => {
   sizeFx(); measureAct2();
   if(isMob()){ htrack.style.transform = ''; hprog.style.transform = ''; }
 });
 if(matchMedia('(pointer:coarse)').matches){
-  $('hintDrag').textContent = '左右滑动 · 或拖轨道环换年';
+  $('hintDrag').textContent = '左右滑动换年 · 点数字换单位';
 }
 (function init(){
   const now = Date.now();
